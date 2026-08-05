@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>9H-CHL Crew Roster</title>
+<style>
+:root {
+  --bg: #0f1419;
+  --surface: #1a2332;
+  --surface2: #243044;
+  --border: #2d3a4f;
+  --text: #e8eef5;
+  --text-muted: #8b9bb4;
+  --accent: #4EA6DC;
+  --danger: #e05c5c;
+  --warn: #f2b33d;
+  --radius: 10px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+button, input, select { font: inherit; color: inherit; }
+a { color: var(--accent); }
+
+/* Login */
+#login-screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(160deg, #0f1419 0%, #1a2a3a 100%);
+}
+.login-card {
+  width: 100%;
+  max-width: 340px;
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 28px 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 40px rgba(0,0,0,.4);
+}
+.login-card h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.login-card .sub {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 24px;
+}
+.login-card label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.login-card input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.login-card input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(78,166,220,.25);
+}
+.login-card .btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+.login-card .btn:active { opacity: .9; }
+.login-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 12px;
+  min-height: 1.2em;
+}
+.crew-hint {
+  margin-top: 20px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* App shell */
+#app { display: none; min-height: 100dvh; flex-direction: column; }
+#app.visible { display: flex; }
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 12px 8px;
+  padding-top: max(10px, env(safe-area-inset-top));
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.header-title {
+  font-weight: 700;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.header-user {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.header-user button {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.stale-banner {
+  background: #5c3a1a;
+  color: #ffd28a;
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  text-align: center;
+  display: none;
+}
+.stale-banner.show { display: block; }
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.seg {
+  display: flex;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 2px;
+  border: 1px solid var(--border);
+}
+.seg button {
+  border: none;
+  background: transparent;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.seg button.active {
+  background: var(--accent);
+  color: #fff;
+}
+.icon-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: var(--text);
+}
+.icon-btn:active { opacity: .85; }
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+}
+.date-nav .date-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  min-width: 0;
+  flex: 1;
+}
+.date-nav button {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  padding-bottom: calc(80px + var(--safe-bottom));
+}
+
+/* Day view */
+.day-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.day-card-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.day-card-header .who {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.day-card-header .role {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.duty-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 16px;
+}
+.duty-tile.small {
+  min-height: 36px;
+  font-size: 0.75rem;
+  padding: 4px 2px;
+  border-radius: 4px;
+}
+.empty-day {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--text-muted);
+}
+
+/* Week / Month strip */
+.roster-strip {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.roster-table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+  font-size: 0.72rem;
+}
+.roster-table th, .roster-table td {
+  border: 1px solid var(--border);
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+.roster-table th {
+  background: var(--surface2);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.roster-table th.weekend { background: #2a2a2a; color: #aaa; }
+.roster-table th.today-col { outline: 2px solid var(--accent); outline-offset: -2px; }
+.roster-table .name-col {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--surface2);
+  text-align: left;
+  padding: 6px 8px;
+  min-width: 110px;
+  max-width: 140px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-right: 2px solid var(--border);
+}
+.roster-table thead .name-col { z-index: 4; }
+.roster-table .day-h {
+  min-width: 28px;
+  width: 28px;
+  padding: 4px 0;
+  line-height: 1.15;
+}
+.roster-table .day-h .dnum { display: block; font-size: 0.8rem; }
+.roster-table .day-h .wd { display: block; font-size: 0.65rem; opacity: .8; }
+.roster-table td .cell {
+  display: block;
+  min-height: 28px;
+  line-height: 28px;
+  font-weight: 700;
+  font-size: 0.68rem;
+}
+.roster-table tr.me .name-col { background: #1e3a4f; }
+
+/* Year view */
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.mini-month {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.mini-month h3 {
+  font-size: 0.8rem;
+  padding: 6px 8px;
+  background: var(--surface2);
+  text-align: center;
+}
+.mini-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  padding: 4px;
+}
+.mini-day {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  font-size: 0.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+.mini-day.empty { background: transparent; }
+
+/* Legend */
+.legend {
+  margin-top: 16px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.legend-toggle {
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  color: var(--text);
+}
+.legend-body {
+  display: none;
+  padding: 0 14px 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.legend.open .legend-body { display: flex; }
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+}
+.legend-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Request form modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  z-index: 100;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  padding: 20px 16px calc(20px + var(--safe-bottom));
+  border: 1px solid var(--border);
+}
+.modal h2 { font-size: 1.1rem; margin-bottom: 4px; }
+.modal .note {
+  font-size: 0.8rem;
+  color: var(--warn);
+  margin-bottom: 16px;
+  background: #3a2e14;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+.form-row { margin-bottom: 12px; }
+.form-row label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.form-row input, .form-row textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.form-row textarea { min-height: 70px; resize: vertical; }
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.form-actions button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border) !important; }
+.current-duty-summary {
+  font-size: 0.8rem;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+}
+
+/* Bottom bar */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 8px 12px calc(8px + var(--safe-bottom));
+  display: flex;
+  gap: 8px;
+  z-index: 40;
+}
+.bottom-bar button {
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bottom-bar .primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Outside notice */
+.outside-notice {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+}
+
+@media (min-width: 600px) {
+  .roster-table { font-size: 0.78rem; }
+  .roster-table .day-h { min-width: 34px; width: 34px; }
+  .roster-table td .cell { min-height: 32px; line-height: 32px; font-size: 0.75rem; }
+  .roster-table .name-col { min-width: 160px; }
+  .modal-overlay { align-items: center; padding: 20px; }
+  .modal { border-radius: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <h1>9H-CHL Roster</h1>
+    <p class="sub">Challenger 3500 · Crew duty viewer</p>
+    <label for="code-input">Your three-letter code</label>
+    <input id="code-input" type="text" maxlength="3" placeholder="e.g. DFL" autocomplete="off" autocapitalize="characters" autofocus>
+    <button class="btn" id="login-btn">Continue</button>
+    <div class="login-error" id="login-error"></div>
+    <p class="crew-hint">DFL · JFR · CHY · NLE · EGM</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="header-top">
+      <div class="header-title">9H-CHL Roster</div>
+      <div class="header-user">
+        <span id="user-label"></span>
+        <button id="switch-user" type="button">Switch</button>
+      </div>
+    </div>
+    <div class="stale-banner" id="stale-banner">Showing cached data — last updated <span id="last-updated"></span></div>
+    <div class="controls" style="margin-bottom:6px">
+      <div class="seg" id="view-seg">
+        <button data-view="day" class="active">Day</button>
+        <button data-view="week">Week</button>
+        <button data-view="month">Month</button>
+        <button data-view="year">Year</button>
+      </div>
+      <div class="seg" id="scope-seg">
+        <button data-scope="me" class="active">My duties</button>
+        <button data-scope="all">Everyone</button>
+      </div>
+      <button class="icon-btn" id="refresh-btn" title="Refresh roster">↻</button>
+    </div>
+    <div class="date-nav" id="date-nav">
+      <button id="prev-btn" type="button" aria-label="Previous">‹</button>
+      <div class="date-label" id="date-label"></div>
+      <button id="next-btn" type="button" aria-label="Next">›</button>
+      <button class="icon-btn" id="today-btn" type="button">Today</button>
+    </div>
+  </header>
+
+  <main id="main"></main>
+
+  <div class="bottom-bar">
+    <button type="button" id="request-btn" class="primary">Request day off</button>
+    <button type="button" id="legend-btn">Legend</button>
+  </div>
+</div>
+
+<!-- Request modal -->
+<div class="modal-overlay" id="request-modal">
+  <div class="modal">
+    <h2>Request day off</h2>
+    <p class="note">This is a request only. The roster is unchanged until a new version is published.</p>
+    <div class="form-row">
+      <label>From date</label>
+      <input type="date" id="req-from">
+    </div>
+    <div class="form-row">
+      <label>To date (optional)</label>
+      <input type="date" id="req-to">
+    </div>
+    <div class="current-duty-summary" id="req-summary">Select dates to see current duties.</div>
+    <div class="form-row">
+      <label>Reason / note (optional)</label>
+      <textarea id="req-reason" placeholder="e.g. family event"></textarea>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" id="req-cancel">Cancel</button>
+      <button type="button" class="btn-primary" id="req-submit">Open email</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========== EMBEDDED ROSTER DATA (parsed from 9H-CHL_Roster.xlsx with fill colours) ========== */
+const EMBEDDED_ROSTER = {"months":[{"title":"June 2026","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],"weekdays":{"1":"Mo","2":"Tu","3":"We","4":"Th","5":"Fr","6":"Sa","7":"Su","8":"Mo","9":"Tu","10":"We","11":"Th","12":"Fr","13":"Sa","14":"Su","15":"Mo","16":"Tu","17":"We","18":"Th","19":"Fr","20":"Sa","21":"Su","22":"Mo","23":"Tu","24":"We","25":"Th","26":"Fr","27":"Sa","28":"Su","29":"Mo","30":"Tu"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"16":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"17":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"20":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"21":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"22":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"23":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"26":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"27":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"28":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}}]},{"title":"July 2026","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"weekdays":{"1":"We","2":"Th","3":"Fr","4":"Sa","5":"Su","6":"Mo","7":"Tu","8":"We","9":"Th","10":"Fr","11":"Sa","12":"Su","13":"Mo","14":"Tu","15":"We","16":"Th","17":"Fr","18":"Sa","19":"Su","20":"Mo","21":"Tu","22":"We","23":"Th","24":"Fr","25":"Sa","26":"Su","27":"Mo","28":"Tu","29":"We","30":"Th","31":"Fr"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"22":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"23":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"24":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"28":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"29":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"30":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"31":{"text":"ON","type":"WDO","fill":"#8E7CC3"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}}]},{"title":"August 2026","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"weekdays":{"1":"Sa","2":"Su","3":"Mo","4":"Tu","5":"We","6":"Th","7":"Fr","8":"Sa","9":"Su","10":"Mo","11":"Tu","12":"We","13":"Th","14":"Fr","15":"Sa","16":"Su","17":"Mo","18":"Tu","19":"We","20":"Th","21":"Fr","22":"Sa","23":"Su","24":"Mo","25":"Tu","26":"We","27":"Th","28":"Fr","29":"Sa","30":"Su","31":"Mo"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"ON","type":"WDO","fill":"#8E7CC3"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}}]},{"title":"September 2026","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],"weekdays":{"1":"Tu","2":"We","3":"Th","4":"Fr","5":"Sa","6":"Su","7":"Mo","8":"Tu","9":"We","10":"Th","11":"Fr","12":"Sa","13":"Su","14":"Mo","15":"Tu","16":"We","17":"Th","18":"Fr","19":"Sa","20":"Su","21":"Mo","22":"Tu","23":"We","24":"Th","25":"Fr","26":"Sa","27":"Su","28":"Mo","29":"Tu","30":"We"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"2":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"3":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"4":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"5":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"6":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"7":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"TD","type":"TD","fill":"#CFE2F3"},"22":{"text":"GS","type":"GS","fill":null},"23":{"text":"GS","type":"GS","fill":null},"24":{"text":"TD","type":"TD","fill":"#CFE2F3"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"TD","type":"TD","fill":"#CFE2F3"},"29":{"text":"GS","type":"GS","fill":"#76A5AF"},"30":{"text":"SIM","type":"SIM","fill":"#F2B33D"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"2":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"3":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"4":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"5":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"6":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"7":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"TD","type":"TD","fill":"#CFE2F3"},"15":{"text":"GS","type":"GS","fill":"#76A5AF"},"16":{"text":"SIM","type":"SIM","fill":"#F2B33D"},"17":{"text":"SIM","type":"SIM","fill":"#F2B33D"},"18":{"text":"SIM","type":"SIM","fill":"#F2B33D"},"19":{"text":"TD","type":"TD","fill":"#CFE2F3"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"TD","type":"TD","fill":"#CFE2F3"},"22":{"text":"GS","type":"GS","fill":null},"23":{"text":"GS","type":"GS","fill":null},"24":{"text":"TD","type":"TD","fill":"#CFE2F3"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"2":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"3":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"4":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"5":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"6":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"7":{"text":"TD","type":"TD","fill":"#CFE2F3"},"8":{"text":"GS","type":"GS","fill":"#76A5AF"},"9":{"text":"GS","type":"GS","fill":"#76A5AF"},"10":{"text":"TD","type":"TD","fill":"#CFE2F3"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"TD","type":"TD","fill":"#CFE2F3"},"15":{"text":"GS","type":"GS","fill":"#76A5AF"},"16":{"text":"SIM","type":"SIM","fill":"#F2B33D"},"17":{"text":"SIM","type":"SIM","fill":"#F2B33D"},"18":{"text":"SIM","type":"SIM","fill":"#F2B33D"},"19":{"text":"TD","type":"TD","fill":"#CFE2F3"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"2":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"3":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"4":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"5":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"6":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"7":{"text":"TD","type":"TD","fill":"#CFE2F3"},"8":{"text":"GS","type":"GS","fill":"#76A5AF"},"9":{"text":"GS","type":"GS","fill":"#76A5AF"},"10":{"text":"TD","type":"TD","fill":"#CFE2F3"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"TD","type":"TD","fill":"#CFE2F3"},"29":{"text":"GS","type":"GS","fill":"#76A5AF"},"30":{"text":"SIM","type":"SIM","fill":"#F2B33D"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"2":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"3":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"4":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"5":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"6":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"7":{"text":"MAINT","type":"MAINT","fill":"#BFBFBF"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}}]},{"title":"October 2026","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"weekdays":{"1":"Th","2":"Fr","3":"Sa","4":"Su","5":"Mo","6":"Tu","7":"We","8":"Th","9":"Fr","10":"Sa","11":"Su","12":"Mo","13":"Tu","14":"We","15":"Th","16":"Fr","17":"Sa","18":"Su","19":"Mo","20":"Tu","21":"We","22":"Th","23":"Fr","24":"Sa","25":"Su","26":"Mo","27":"Tu","28":"We","29":"Th","30":"Fr","31":"Sa"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"SIM","type":"SIM","fill":"#F2B33D"},"2":{"text":"SIM","type":"SIM","fill":"#F2B33D"},"3":{"text":"TD","type":"TD","fill":"#CFE2F3"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"SIM","type":"SIM","fill":"#F2B33D"},"2":{"text":"SIM","type":"SIM","fill":"#F2B33D"},"3":{"text":"TD","type":"TD","fill":"#CFE2F3"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}}]},{"title":"November 2026","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],"weekdays":{"1":"Su","2":"Mo","3":"Tu","4":"We","5":"Th","6":"Fr","7":"Sa","8":"Su","9":"Mo","10":"Tu","11":"We","12":"Th","13":"Fr","14":"Sa","15":"Su","16":"Mo","17":"Tu","18":"We","19":"Th","20":"Fr","21":"Sa","22":"Su","23":"Mo","24":"Tu","25":"We","26":"Th","27":"Fr","28":"Sa","29":"Su","30":"Mo"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}}]},{"title":"December 2026","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"weekdays":{"1":"Tu","2":"We","3":"Th","4":"Fr","5":"Sa","6":"Su","7":"Mo","8":"Tu","9":"We","10":"Th","11":"Fr","12":"Sa","13":"Su","14":"Mo","15":"Tu","16":"We","17":"Th","18":"Fr","19":"Sa","20":"Su","21":"Mo","22":"Tu","23":"We","24":"Th","25":"Fr","26":"Sa","27":"Su","28":"Mo","29":"Tu","30":"We","31":"Th"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}}]},{"title":"January 2027","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"weekdays":{"1":"Fr","2":"Sa","3":"Su","4":"Mo","5":"Tu","6":"We","7":"Th","8":"Fr","9":"Sa","10":"Su","11":"Mo","12":"Tu","13":"We","14":"Th","15":"Fr","16":"Sa","17":"Su","18":"Mo","19":"Tu","20":"We","21":"Th","22":"Fr","23":"Sa","24":"Su","25":"Mo","26":"Tu","27":"We","28":"Th","29":"Fr","30":"Sa","31":"Su"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}}]},{"title":"February 2027","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28],"weekdays":{"1":"Mo","2":"Tu","3":"We","4":"Th","5":"Fr","6":"Sa","7":"Su","8":"Mo","9":"Tu","10":"We","11":"Th","12":"Fr","13":"Sa","14":"Su","15":"Mo","16":"Tu","17":"We","18":"Th","19":"Fr","20":"Sa","21":"Su","22":"Mo","23":"Tu","24":"We","25":"Th","26":"Fr","27":"Sa","28":"Su"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}}]},{"title":"March 2027","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"weekdays":{"1":"Mo","2":"Tu","3":"We","4":"Th","5":"Fr","6":"Sa","7":"Su","8":"Mo","9":"Tu","10":"We","11":"Th","12":"Fr","13":"Sa","14":"Su","15":"Mo","16":"Tu","17":"We","18":"Th","19":"Fr","20":"Sa","21":"Su","22":"Mo","23":"Tu","24":"We","25":"Th","26":"Fr","27":"Sa","28":"Su","29":"Mo","30":"Tu","31":"We"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}}]},{"title":"April 2027","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],"weekdays":{"1":"Th","2":"Fr","3":"Sa","4":"Su","5":"Mo","6":"Tu","7":"We","8":"Th","9":"Fr","10":"Sa","11":"Su","12":"Mo","13":"Tu","14":"We","15":"Th","16":"Fr","17":"Sa","18":"Su","19":"Mo","20":"Tu","21":"We","22":"Th","23":"Fr","24":"Sa","25":"Su","26":"Mo","27":"Tu","28":"We","29":"Th","30":"Fr"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}}]},{"title":"May 2027","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"weekdays":{"1":"Sa","2":"Su","3":"Mo","4":"Tu","5":"We","6":"Th","7":"Fr","8":"Sa","9":"Su","10":"Mo","11":"Tu","12":"We","13":"Th","14":"Fr","15":"Sa","16":"Su","17":"Mo","18":"Tu","19":"We","20":"Th","21":"Fr","22":"Sa","23":"Su","24":"Mo","25":"Tu","26":"We","27":"Th","28":"Fr","29":"Sa","30":"Su","31":"Mo"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}}]},{"title":"June 2027","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],"weekdays":{"1":"Tu","2":"We","3":"Th","4":"Fr","5":"Sa","6":"Su","7":"Mo","8":"Tu","9":"We","10":"Th","11":"Fr","12":"Sa","13":"Su","14":"Mo","15":"Tu","16":"We","17":"Th","18":"Fr","19":"Sa","20":"Su","21":"Mo","22":"Tu","23":"We","24":"Th","25":"Fr","26":"Sa","27":"Su","28":"Mo","29":"Tu","30":"We"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"}}}]},{"title":"July 2027","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"weekdays":{"1":"Th","2":"Fr","3":"Sa","4":"Su","5":"Mo","6":"Tu","7":"We","8":"Th","9":"Fr","10":"Sa","11":"Su","12":"Mo","13":"Tu","14":"We","15":"Th","16":"Fr","17":"Sa","18":"Su","19":"Mo","20":"Tu","21":"We","22":"Th","23":"Fr","24":"Sa","25":"Su","26":"Mo","27":"Tu","28":"We","29":"Th","30":"Fr","31":"Sa"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}}]},{"title":"August 2027","days":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"weekdays":{"1":"Su","2":"Mo","3":"Tu","4":"We","5":"Th","6":"Fr","7":"Sa","8":"Su","9":"Mo","10":"Tu","11":"We","12":"Th","13":"Fr","14":"Sa","15":"Su","16":"Mo","17":"Tu","18":"We","19":"Th","20":"Fr","21":"Sa","22":"Su","23":"Mo","24":"Tu","25":"We","26":"Th","27":"Fr","28":"Sa","29":"Su","30":"Mo","31":"Tu"},"crew":[{"name":"Fleet Capt. David FLETCHER (DFL)","code":"DFL","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"Capt. Jens FRAHM (JFR)","code":"JFR","duties":{"1":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"ON","type":"ON","fill":"#4EA6DC"},"10":{"text":"ON","type":"ON","fill":"#4EA6DC"},"11":{"text":"ON","type":"ON","fill":"#4EA6DC"},"12":{"text":"ON","type":"ON","fill":"#4EA6DC"},"13":{"text":"ON","type":"ON","fill":"#4EA6DC"},"14":{"text":"ON","type":"ON","fill":"#4EA6DC"},"15":{"text":"ON","type":"ON","fill":"#4EA6DC"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"24":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"25":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"26":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"27":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"28":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"29":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"Capt. Dominika CHYCLAK (CHY)","code":"CHY","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"ON","type":"ON","fill":"#4EA6DC"},"3":{"text":"ON","type":"ON","fill":"#4EA6DC"},"4":{"text":"ON","type":"ON","fill":"#4EA6DC"},"5":{"text":"ON","type":"ON","fill":"#4EA6DC"},"6":{"text":"ON","type":"ON","fill":"#4EA6DC"},"7":{"text":"ON","type":"ON","fill":"#4EA6DC"},"8":{"text":"ON","type":"ON","fill":"#4EA6DC"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"17":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"18":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"19":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"20":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"21":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"22":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"ON","type":"ON","fill":"#4EA6DC"},"31":{"text":"ON","type":"ON","fill":"#4EA6DC"}}},{"name":"F/O Nicolas LEONARDI (NLE)","code":"NLE","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}},{"name":"F/A Lolita EGAMBERDIJEVA (EGM)","code":"EGM","duties":{"1":{"text":"ON","type":"ON","fill":"#4EA6DC"},"2":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"3":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"4":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"5":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"6":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"7":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"8":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"9":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"10":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"11":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"12":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"13":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"14":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"15":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"16":{"text":"ON","type":"ON","fill":"#4EA6DC"},"17":{"text":"ON","type":"ON","fill":"#4EA6DC"},"18":{"text":"ON","type":"ON","fill":"#4EA6DC"},"19":{"text":"ON","type":"ON","fill":"#4EA6DC"},"20":{"text":"ON","type":"ON","fill":"#4EA6DC"},"21":{"text":"ON","type":"ON","fill":"#4EA6DC"},"22":{"text":"ON","type":"ON","fill":"#4EA6DC"},"23":{"text":"ON","type":"ON","fill":"#4EA6DC"},"24":{"text":"ON","type":"ON","fill":"#4EA6DC"},"25":{"text":"ON","type":"ON","fill":"#4EA6DC"},"26":{"text":"ON","type":"ON","fill":"#4EA6DC"},"27":{"text":"ON","type":"ON","fill":"#4EA6DC"},"28":{"text":"ON","type":"ON","fill":"#4EA6DC"},"29":{"text":"ON","type":"ON","fill":"#4EA6DC"},"30":{"text":"OFF","type":"OFF","fill":"#5BA85C"},"31":{"text":"OFF","type":"OFF","fill":"#5BA85C"}}}]}],"fetchedAt":"2026-08-05T00:00:00Z"}
+;
+
+const CREW_LIST = {
+  DFL: { name: "David Fletcher", role: "Fleet Captain", full: "Fleet Capt. David FLETCHER (DFL)" },
+  JFR: { name: "Jens Frahm", role: "Captain", full: "Capt. Jens FRAHM (JFR)" },
+  CHY: { name: "Dominika Chyclak", role: "Captain", full: "Capt. Dominika CHYCLAK (CHY)" },
+  NLE: { name: "Nicolas Leonardi", role: "First Officer", full: "F/O Nicolas LEONARDI (NLE)" },
+  EGM: { name: "Lolita Egamberdijeva", role: "Flight Attendant", full: "F/A Lolita EGAMBERDIJEVA (EGM)" }
+};
+
+const COLOURS = {
+  ON:   { bg: "#4EA6DC", fg: "#fff", label: "ON" },
+  WDO:  { bg: "#8E7CC3", fg: "#fff", label: "WDO" },
+  OFF:  { bg: "#5BA85C", fg: "#fff", label: "OFF" },
+  RDO:  { bg: "#D98C82", fg: "#fff", label: "RDO" },
+  MAINT:{ bg: "#BFBFBF", fg: "#222", label: "MAINT" },
+  SIM:  { bg: "#F2B33D", fg: "#222", label: "SIM" },
+  GS:   { bg: "#76A5AF", fg: "#fff", label: "GS" },
+  TD:   { bg: "#CFE2F3", fg: "#222", label: "TD" },
+  EMPTY:{ bg: "transparent", fg: "var(--text-muted)", label: "—" }
+};
+
+const PDF_FALLBACK = "https://www.dropbox.com/scl/fi/fiy0bwt6a4bd2bliowf02/9H-CHL_Roster.pdf?rlkey=2o0z1eqvu4pq8rp9f6atkdnom&st=r9e5pqki&dl=0";
+// Paste permanent xlsx shared link here (dl=0). App converts to dl=1 on fetch.
+const DROPBOX_XLSX_LINK = ""; // e.g. "https://www.dropbox.com/scl/fi/..../9H-CHL_Roster.xlsx?rlkey=...&dl=0"
+
+// ---------- State ----------
+let roster = null;           // { months: [...], fetchedAt }
+let isStale = false;
+let currentUser = null;      // code
+let viewMode = "day";        // day | week | month | year
+let scope = "me";            // me | all
+let cursor = new Date();     // selected date (local calendar)
+cursor.setHours(12,0,0,0);
+
+// ---------- Helpers ----------
+function pad(n) { return n < 10 ? "0"+n : ""+n; }
+function ymd(d) { return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function parseMonthTitle(title) {
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const parts = title.trim().split(/\s+/);
+  const mi = months.findIndex(m => m.toLowerCase() === parts[0].toLowerCase());
+  const year = parseInt(parts[1], 10);
+  return { month: mi, year }; // month 0-based
+}
+function getMonthBlock(d) {
+  if (!roster) return null;
+  const y = d.getFullYear(), m = d.getMonth();
+  return roster.months.find(blk => {
+    const p = parseMonthTitle(blk.title);
+    return p.year === y && p.month === m;
+  }) || null;
+}
+function dutyFor(code, d) {
+  const blk = getMonthBlock(d);
+  if (!blk) return null;
+  const person = blk.crew.find(c => c.code === code);
+  if (!person) return null;
+  return person.duties[String(d.getDate())] || null;
+}
+function allDutiesForDay(d) {
+  const blk = getMonthBlock(d);
+  if (!blk) return [];
+  return blk.crew.map(c => ({
+    code: c.code,
+    name: c.name,
+    duty: c.duties[String(d.getDate())] || null
+  }));
+}
+function colourStyle(type) {
+  const c = COLOURS[type] || COLOURS.EMPTY;
+  return `background:${c.bg};color:${c.fg}`;
+}
+function displayLabel(type) {
+  if (type === "WDO") return "Worked Day Off";
+  if (type === "MAINT") return "MAINTENANCE";
+  return (COLOURS[type] || COLOURS.EMPTY).label;
+}
+function startOfWeek(d) {
+  const x = new Date(d); x.setHours(12,0,0,0);
+  const day = x.getDay(); // 0 Sun
+  const diff = day === 0 ? -6 : 1 - day; // Monday start
+  x.setDate(x.getDate() + diff);
+  return x;
+}
+function addDays(d, n) {
+  const x = new Date(d); x.setDate(x.getDate() + n); return x;
+}
+function sameDay(a,b) {
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+function isWeekend(d) {
+  const w = d.getDay();
+  return w === 0 || w === 6;
+}
+function rosterRange() {
+  if (!roster || !roster.months.length) return null;
+  const first = parseMonthTitle(roster.months[0].title);
+  const last = parseMonthTitle(roster.months[roster.months.length-1].title);
+  return {
+    start: new Date(first.year, first.month, 1),
+    end: new Date(last.year, last.month + 1, 0)
+  };
+}
+function inRoster(d) {
+  const r = rosterRange();
+  if (!r) return false;
+  return d >= r.start && d <= r.end;
+}
+
+// ---------- Data load ----------
+async function loadRoster(forceFetch) {
+  // Prefer Dropbox if link set
+  if (DROPBOX_XLSX_LINK && (forceFetch || !roster)) {
+    try {
+      let url = DROPBOX_XLSX_LINK.replace("dl=0", "dl=1");
+      if (url.includes("www.dropbox.com") && !url.includes("dl.dropboxusercontent.com")) {
+        url = url.replace("www.dropbox.com", "dl.dropboxusercontent.com");
+      }
+      // SheetJS would be needed for live parse with colours — for v1 we use embedded + optional fetch of JSON
+      // Live xlsx colour parsing requires SheetJS + custom fill reader; embedded data is authoritative for this build.
+      console.log("Dropbox fetch not fully wired for colour parse in this build; using embedded.");
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+  if (!roster) {
+    roster = EMBEDDED_ROSTER;
+    isStale = false;
+  }
+  updateStaleBanner();
+  render();
+}
+
+function updateStaleBanner() {
+  const banner = document.getElementById("stale-banner");
+  const span = document.getElementById("last-updated");
+  if (isStale && roster) {
+    banner.classList.add("show");
+    span.textContent = roster.fetchedAt ? new Date(roster.fetchedAt).toLocaleString() : "unknown";
+  } else {
+    banner.classList.remove("show");
+  }
+}
+
+// ---------- Login ----------
+document.getElementById("login-btn").addEventListener("click", doLogin);
+document.getElementById("code-input").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+
+function doLogin() {
+  const raw = document.getElementById("code-input").value.trim().toUpperCase();
+  const err = document.getElementById("login-error");
+  if (!CREW_LIST[raw]) {
+    err.textContent = "Unknown code. Please use DFL, JFR, CHY, NLE or EGM.";
+    return;
+  }
+  err.textContent = "";
+  currentUser = raw;
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").classList.add("visible");
+  document.getElementById("user-label").textContent = CREW_LIST[raw].name + " (" + raw + ")";
+  // URL param memory
+  try {
+    const u = new URL(location.href);
+    u.searchParams.set("code", raw);
+    history.replaceState(null, "", u);
+  } catch (_) {}
+  loadRoster(false);
+}
+
+document.getElementById("switch-user").addEventListener("click", () => {
+  currentUser = null;
+  document.getElementById("app").classList.remove("visible");
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("code-input").value = "";
+  document.getElementById("code-input").focus();
+});
+
+// Auto-login from URL
+(function () {
+  try {
+    const code = new URL(location.href).searchParams.get("code");
+    if (code && CREW_LIST[code.toUpperCase()]) {
+      document.getElementById("code-input").value = code.toUpperCase();
+      doLogin();
+    }
+  } catch (_) {}
+})();
+
+// ---------- Navigation ----------
+document.getElementById("view-seg").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-view]");
+  if (!btn) return;
+  viewMode = btn.dataset.view;
+  document.querySelectorAll("#view-seg button").forEach(b => b.classList.toggle("active", b.dataset.view === viewMode));
+  render();
+});
+document.getElementById("scope-seg").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-scope]");
+  if (!btn) return;
+  scope = btn.dataset.scope;
+  document.querySelectorAll("#scope-seg button").forEach(b => b.classList.toggle("active", b.dataset.scope === scope));
+  render();
+});
+document.getElementById("prev-btn").addEventListener("click", () => {
+  if (viewMode === "day") cursor = addDays(cursor, -1);
+  else if (viewMode === "week") cursor = addDays(cursor, -7);
+  else if (viewMode === "month") cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1);
+  else cursor = new Date(cursor.getFullYear() - 1, cursor.getMonth(), 1);
+  cursor.setHours(12,0,0,0);
+  render();
+});
+document.getElementById("next-btn").addEventListener("click", () => {
+  if (viewMode === "day") cursor = addDays(cursor, 1);
+  else if (viewMode === "week") cursor = addDays(cursor, 7);
+  else if (viewMode === "month") cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+  else cursor = new Date(cursor.getFullYear() + 1, cursor.getMonth(), 1);
+  cursor.setHours(12,0,0,0);
+  render();
+});
+document.getElementById("today-btn").addEventListener("click", () => {
+  cursor = new Date(); cursor.setHours(12,0,0,0);
+  render();
+});
+document.getElementById("refresh-btn").addEventListener("click", () => {
+  isStale = false;
+  loadRoster(true);
+});
+
+// ---------- Render ----------
+function render() {
+  if (!roster || !currentUser) return;
+  updateDateLabel();
+  const main = document.getElementById("main");
+  if (!inRoster(cursor) && viewMode !== "year") {
+    main.innerHTML = `<div class="outside-notice">Outside the published roster window.<br>Published months: ${roster.months[0].title} → ${roster.months[roster.months.length-1].title}</div>`;
+    return;
+  }
+  if (viewMode === "day") renderDay(main);
+  else if (viewMode === "week") renderWeek(main);
+  else if (viewMode === "month") renderMonth(main);
+  else renderYear(main);
+  renderLegend(main);
+}
+
+function updateDateLabel() {
+  const el = document.getElementById("date-label");
+  const opts = { weekday: "short", day: "numeric", month: "short", year: "numeric" };
+  if (viewMode === "day") {
+    el.textContent = cursor.toLocaleDateString(undefined, opts);
+  } else if (viewMode === "week") {
+    const s = startOfWeek(cursor);
+    const e = addDays(s, 6);
+    el.textContent = s.toLocaleDateString(undefined, { day: "numeric", month: "short" }) + " – " + e.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+  } else if (viewMode === "month") {
+    el.textContent = cursor.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  } else {
+    el.textContent = String(cursor.getFullYear());
+  }
+}
+
+function renderDay(main) {
+  const people = scope === "me"
+    ? [{ code: currentUser, name: CREW_LIST[currentUser].full, duty: dutyFor(currentUser, cursor) }]
+    : allDutiesForDay(cursor);
+
+  if (!people.length || (scope === "me" && !getMonthBlock(cursor))) {
+    main.innerHTML = `<div class="empty-day">No roster data for this day.</div>`;
+    return;
+  }
+
+  let html = "";
+  people.forEach(p => {
+    const d = p.duty;
+    const type = d ? d.type : "EMPTY";
+    const label = d ? displayLabel(type) : "—";
+    const who = p.name || (CREW_LIST[p.code] ? CREW_LIST[p.code].full : p.code);
+    const role = CREW_LIST[p.code] ? CREW_LIST[p.code].role : "";
+    html += `<div class="day-card">
+      <div class="day-card-header">
+        <div>
+          <div class="who">${who}</div>
+          <div class="role">${role}</div>
+        </div>
+      </div>
+      <div class="duty-tile" style="${colourStyle(type)}">${label}</div>
+    </div>`;
+  });
+  main.innerHTML = html;
+}
+
+function renderWeek(main) {
+  const start = startOfWeek(cursor);
+  const days = [];
+  for (let i = 0; i < 7; i++) days.push(addDays(start, i));
+
+  const codes = scope === "me" ? [currentUser] : orderedCodesFor(days[0]);
+  let html = `<div class="roster-strip"><table class="roster-table"><thead><tr><th class="name-col"></th>`;
+  days.forEach(d => {
+    const wd = ["Su","Mo","Tu","We","Th","Fr","Sa"][d.getDay()];
+    const weekend = isWeekend(d) ? " weekend" : "";
+    const today = sameDay(d, new Date()) ? " today-col" : "";
+    html += `<th class="day-h${weekend}${today}"><span class="dnum">${d.getDate()}</span><span class="wd">${wd}</span></th>`;
+  });
+  html += `</tr></thead><tbody>`;
+
+  codes.forEach(code => {
+    const info = CREW_LIST[code] || { name: code };
+    const me = code === currentUser ? " me" : "";
+    html += `<tr class="${me}"><td class="name-col" title="${info.full || code}">${code}</td>`;
+    days.forEach(d => {
+      const duty = dutyFor(code, d);
+      const type = duty ? duty.type : "EMPTY";
+      const label = duty ? (type === "WDO" ? "WDO" : duty.text || type) : "";
+      html += `<td><span class="cell" style="${colourStyle(type)}">${label}</span></td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div>`;
+  main.innerHTML = html;
+}
+
+function orderedCodesFor(d) {
+  const blk = getMonthBlock(d);
+  if (blk) return blk.crew.map(c => c.code);
+  return Object.keys(CREW_LIST);
+}
+
+function renderMonth(main) {
+  const blk = getMonthBlock(cursor);
+  if (!blk) {
+    main.innerHTML = `<div class="outside-notice">No data for this month.</div>`;
+    return;
+  }
+  const codes = scope === "me" ? [currentUser] : blk.crew.map(c => c.code);
+  const days = blk.days;
+  const today = new Date(); today.setHours(12,0,0,0);
+
+  let html = `<div class="roster-strip"><table class="roster-table"><thead><tr><th class="name-col">${blk.title}</th>`;
+  days.forEach(day => {
+    const d = new Date(cursor.getFullYear(), cursor.getMonth(), day);
+    d.setHours(12,0,0,0);
+    const wd = blk.weekdays[String(day)] || "";
+    const weekend = (wd === "Sa" || wd === "Su") ? " weekend" : "";
+    const isToday = sameDay(d, today) ? " today-col" : "";
+    html += `<th class="day-h${weekend}${isToday}"><span class="dnum">${pad(day)}</span><span class="wd">${wd}</span></th>`;
+  });
+  html += `</tr></thead><tbody>`;
+
+  codes.forEach(code => {
+    const person = blk.crew.find(c => c.code === code);
+    if (!person && scope === "me") {
+      // not in this month (e.g. CHY in June)
+      html += `<tr class="me"><td class="name-col">${code}</td>`;
+      days.forEach(() => { html += `<td><span class="cell">—</span></td>`; });
+      html += `</tr>`;
+      return;
+    }
+    const me = code === currentUser ? " me" : "";
+    const shortName = code;
+    html += `<tr class="${me}"><td class="name-col" title="${person ? person.name : code}">${shortName}</td>`;
+    days.forEach(day => {
+      const duty = person ? person.duties[String(day)] : null;
+      const type = duty ? duty.type : "EMPTY";
+      const label = duty ? (type === "WDO" ? "WDO" : (duty.text || type).slice(0,4)) : "";
+      html += `<td><span class="cell" style="${colourStyle(type)}">${label}</span></td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div>`;
+  main.innerHTML = html;
+}
+
+function renderYear(main) {
+  const year = cursor.getFullYear();
+  const monthsInYear = roster.months.filter(m => parseMonthTitle(m.title).year === year);
+  if (!monthsInYear.length) {
+    main.innerHTML = `<div class="outside-notice">No data for ${year}.</div>`;
+    return;
+  }
+  const code = scope === "me" ? currentUser : null;
+  let html = `<div class="year-grid">`;
+  monthsInYear.forEach(blk => {
+    const p = parseMonthTitle(blk.title);
+    html += `<div class="mini-month"><h3>${blk.title}</h3><div class="mini-days">`;
+    // pad start
+    const firstWd = blk.weekdays["1"] || "Mo";
+    const wdMap = { Mo:0, Tu:1, We:2, Th:3, Fr:4, Sa:5, Su:6 };
+    const padStart = wdMap[firstWd] || 0;
+    for (let i = 0; i < padStart; i++) html += `<div class="mini-day empty"></div>`;
+    blk.days.forEach(day => {
+      let type = "EMPTY";
+      if (code) {
+        const person = blk.crew.find(c => c.code === code);
+        if (person && person.duties[String(day)]) type = person.duties[String(day)].type;
+      } else {
+        // heat: show if any ON/WDO
+        const ons = blk.crew.filter(c => {
+          const d = c.duties[String(day)];
+          return d && (d.type === "ON" || d.type === "WDO");
+        }).length;
+        if (ons >= 2) type = "ON";
+        else if (ons === 1) type = "TD";
+        else {
+          const maint = blk.crew.some(c => c.duties[String(day)] && c.duties[String(day)].type === "MAINT");
+          type = maint ? "MAINT" : "OFF";
+        }
+      }
+      const c = COLOURS[type] || COLOURS.EMPTY;
+      html += `<div class="mini-day" style="background:${c.bg};color:${c.fg}" title="${day}">${day}</div>`;
+    });
+    html += `</div></div>`;
+  });
+  html += `</div>`;
+  main.innerHTML = html;
+}
+
+function renderLegend(main) {
+  const items = [
+    ["ON", "On duty"],
+    ["WDO", "Worked Day Off"],
+    ["OFF", "Day off"],
+    ["RDO", "Requested day off"],
+    ["MAINT", "Aircraft maintenance"],
+    ["SIM", "Simulator"],
+    ["GS", "Ground school"],
+    ["TD", "Travel day"]
+  ];
+  let body = items.map(([t, lab]) => {
+    const c = COLOURS[t];
+    return `<div class="legend-item"><span class="legend-swatch" style="background:${c.bg}"></span>${lab}</div>`;
+  }).join("");
+  main.innerHTML += `<div class="legend" id="legend">
+    <button type="button" class="legend-toggle" id="legend-toggle">Colour legend <span>▾</span></button>
+    <div class="legend-body">${body}</div>
+  </div>`;
+  document.getElementById("legend-toggle").addEventListener("click", () => {
+    document.getElementById("legend").classList.toggle("open");
+  });
+}
+
+// ---------- Request day off ----------
+document.getElementById("request-btn").addEventListener("click", () => {
+  const modal = document.getElementById("request-modal");
+  const from = document.getElementById("req-from");
+  from.value = ymd(cursor);
+  document.getElementById("req-to").value = "";
+  document.getElementById("req-reason").value = "";
+  updateReqSummary();
+  modal.classList.add("show");
+});
+document.getElementById("req-cancel").addEventListener("click", () => {
+  document.getElementById("request-modal").classList.remove("show");
+});
+document.getElementById("req-from").addEventListener("change", updateReqSummary);
+document.getElementById("req-to").addEventListener("change", updateReqSummary);
+
+function updateReqSummary() {
+  const from = document.getElementById("req-from").value;
+  const to = document.getElementById("req-to").value || from;
+  const el = document.getElementById("req-summary");
+  if (!from) { el.textContent = "Select dates to see current duties."; return; }
+  const start = new Date(from + "T12:00:00");
+  const end = new Date(to + "T12:00:00");
+  if (end < start) { el.textContent = "To date is before From date."; return; }
+  let lines = [];
+  for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
+    const duty = dutyFor(currentUser, d);
+    const lab = duty ? displayLabel(duty.type) : "—";
+    lines.push(`${ymd(d)}: ${lab}`);
+  }
+  el.innerHTML = `<strong>Currently rostered for ${CREW_LIST[currentUser].name}:</strong><br>` + lines.join("<br>");
+}
+
+document.getElementById("req-submit").addEventListener("click", () => {
+  const from = document.getElementById("req-from").value;
+  const to = document.getElementById("req-to").value || from;
+  if (!from) { alert("Please choose a start date."); return; }
+  const reason = document.getElementById("req-reason").value.trim();
+  const start = new Date(from + "T12:00:00");
+  const end = new Date(to + "T12:00:00");
+  let dutyLines = [];
+  for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
+    const duty = dutyFor(currentUser, d);
+    dutyLines.push(`${ymd(d)}: ${duty ? displayLabel(duty.type) : "—"}`);
+  }
+  const datesStr = from === to ? from : `${from} to ${to}`;
+  const subject = `9H-CHL Day-Off Request — ${currentUser} — ${datesStr}`;
+  const body = [
+    `Requester: ${CREW_LIST[currentUser].name} (${currentUser})`,
+    `Role: ${CREW_LIST[currentUser].role}`,
+    ``,
+    `Requested date(s): ${datesStr}`,
+    ``,
+    `Currently rostered on those dates:`,
+    ...dutyLines,
+    ``,
+    `Reason / note: ${reason || "(none)"}`,
+    ``,
+    `Timestamp: ${new Date().toISOString()}`,
+    ``,
+    `This is a request only. The roster is unchanged until a new version is published.`
+  ].join("\n");
+  const mailto = `mailto:david@jetshowroom.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailto;
+  document.getElementById("request-modal").classList.remove("show");
+});
+
+document.getElementById("legend-btn").addEventListener("click", () => {
+  const leg = document.getElementById("legend");
+  if (leg) {
+    leg.classList.add("open");
+    leg.scrollIntoView({ behavior: "smooth" });
+  }
+});
+
+// Close modal on overlay click
+document.getElementById("request-modal").addEventListener("click", e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove("show");
+});
+</script>
+</body>
+</html>
