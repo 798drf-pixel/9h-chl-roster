@@ -924,54 +924,65 @@ function parseWorkbook(wb) {
   return { months, fetchedAt: new Date().toISOString() };
 }
 
-async function loadRoster(forceFetch) {
-  const main = document.getElementById("main");
-
-  // 1) Try live Dropbox fetch (when online / forced)
-  if (DROPBOX_XLSX_LINK && (forceFetch || !roster)) {
-    try {
-      if (main && forceFetch) main.innerHTML = `<div class="loading">Loading roster…</div>`;
-      let url = DROPBOX_XLSX_LINK.replace("dl=0", "dl=1");
-      if (url.includes("www.dropbox.com")) {
-        url = url.replace("www.dropbox.com", "dl.dropboxusercontent.com");
-      }
-      url += (url.includes("?") ? "&" : "?") + "_t=" + Date.now();
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error("HTTP " + resp.status);
-      const buf = await resp.arrayBuffer();
-      if (typeof XLSX === "undefined") throw new Error("SheetJS not loaded");
-      const wb = XLSX.read(buf, { type: "array", cellStyles: true });
-      const parsed = parseWorkbook(wb);
-      if (!parsed.months.length) throw new Error("No month blocks found");
-      roster = parsed;
-      isStale = false;
-      saveRosterCache(parsed);
-      updateStaleBanner();
-      render();
-      return;
-    } catch (e) {
-      console.warn("Live fetch failed:", e);
-      isStale = true;
-    }
-  }
-
-  // 2) Offline / failed fetch → use last cached roster from this device
-  if (!roster) {
-    const cached = loadRosterCache();
-    if (cached) {
-      roster = cached;
-      isStale = true;
-    }
-  }
-
-  // 3) Final fallback: embedded snapshot shipped with the app
-  if (!roster) {
-    roster = EMBEDDED_ROSTER;
+function applyLocalRoster() {
+  if (roster) return;
+  const cached = loadRosterCache();
+  if (cached) {
+    roster = cached;
     isStale = true;
+    return;
   }
+  roster = EMBEDDED_ROSTER;
+  isStale = true;
+  saveRosterCache(EMBEDDED_ROSTER);
+}
 
+async function fetchLiveRoster() {
+  if (!DROPBOX_XLSX_LINK) return false;
+  if (typeof XLSX === "undefined") throw new Error("SheetJS not loaded");
+  let url = DROPBOX_XLSX_LINK.replace("dl=0", "dl=1");
+  if (url.includes("www.dropbox.com")) {
+    url = url.replace("www.dropbox.com", "dl.dropboxusercontent.com");
+  }
+  url += (url.includes("?") ? "&" : "?") + "_t=" + Date.now();
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const resp = await fetch(url, { signal: ctrl.signal, cache: "no-store" });
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const buf = await resp.arrayBuffer();
+    const wb = XLSX.read(buf, { type: "array", cellStyles: true });
+    const parsed = parseWorkbook(wb);
+    if (!parsed.months.length) throw new Error("No month blocks found");
+    roster = parsed;
+    isStale = false;
+    saveRosterCache(parsed);
+    return true;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function loadRoster(forceFetch) {
+  // Always paint the last known roster first so the app works offline
+  applyLocalRoster();
   updateStaleBanner();
   render();
+
+  const online = typeof navigator === "undefined" || navigator.onLine !== false;
+  if (!online && !forceFetch) return;
+
+  try {
+    const ok = await fetchLiveRoster();
+    if (ok) {
+      updateStaleBanner();
+      render();
+    }
+  } catch (e) {
+    console.warn("Live fetch failed:", e);
+    isStale = true;
+    updateStaleBanner();
+  }
 }
 
 function updateStaleBanner() {
